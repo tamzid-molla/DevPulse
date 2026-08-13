@@ -21,6 +21,21 @@ const connectDB = async () => {
         updated_at TIMESTAMP DEFAULT NOW()
     )
         `);
+    
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS issues
+        (
+        id SERIAL PRIMARY KEY,
+        title varchar(150) NOT NULL,
+        description TEXT NOT NULL CHECK(LENGTH(description) >= 20),
+        type varchar(30) NOT NULL CHECK(type IN('feature_request','bug')),
+        status varchar(20) DEFAULT 'open' 
+        CHECK (status IN('open', 'in_progress','resolved')),
+        reporter_id INT NOT NULL ,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+    )
+        `)
 };
 
 connectDB()
