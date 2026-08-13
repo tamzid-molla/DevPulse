@@ -15,7 +15,8 @@ const connectDB = async () => {
         name varchar(30) NOT NULL,
         email varchar(30) UNIQUE NOT NULL,
         password varchar(255) NOT NULL,
-        role varchar(15) DEFAULT 'contributor' ,
+        role varchar(15) DEFAULT 'contributor' 
+        CHECK (role IN('contributor', 'maintainer')),
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
     )
