@@ -1,7 +1,7 @@
-import express, { type Application } from "express";
+import { app } from "./app.js";
+import config from "./config/config.js";
 
-const app: Application = express();
-const port = 5001;
+const port = config.port;
 
 
 app.listen(port, () => {
