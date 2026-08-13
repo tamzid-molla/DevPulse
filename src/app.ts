@@ -1,6 +1,5 @@
 import express, { type Application, type Request, type Response } from "express";
 import pool from "./config/bd.js";
-import { userRouter } from "./modules/user/user.route.js";
 import { authRouter } from "./modules/auth/auth.route.js";
 export const app: Application = express();
 
@@ -32,6 +31,5 @@ app.get("/", (req: Request, res: Response) => {
     })
 });
 
-app.use("/api/user",userRouter);
 app.use("/api/auth",authRouter);
 
