@@ -4,8 +4,9 @@ import sendResponse from "../../utility/sendResponse.js";
 
 
 const createIssue = async (req: Request, res: Response) => {
+    const loginUser = req.user
     try {
-        const result = await issueService.createIssueIntoDB(req.body);
+        const result = await issueService.createIssueIntoDB(req.body,loginUser);
         sendResponse(res, {
             statusCode: 201,
             success: true,

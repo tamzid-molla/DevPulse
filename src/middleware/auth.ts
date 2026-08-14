@@ -7,7 +7,8 @@ import pool from "../config/bd.js";
 
 export const authMiddleware = (...roles: ROLES[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
-        const token = req.headers?.authorization;
+        try {
+            const token = req.headers?.authorization;
         if (!token) {
             sendResponse(res, {
                 statusCode: 401,
@@ -17,9 +18,8 @@ export const authMiddleware = (...roles: ROLES[]) => {
         };
 
         const decoded = jwt.verify(token as string, config.jwt_secret as string) as JwtPayload;
-
         const userData = await pool.query(`
-            SELECT * FROM USER 
+            SELECT * FROM users 
             WHERE id = $1
             `, [decoded?.id]);
         const user = userData.rows[0]
@@ -31,8 +31,11 @@ export const authMiddleware = (...roles: ROLES[]) => {
                 message:"Forbidden access!!"
             })
         }
-        
-        req.user = decoded;
+            req.user = decoded;
+            next()
+        } catch (error) {
+            next(error)
+        }
         
     }
 };
