@@ -10,7 +10,7 @@ export const authMiddleware = (...roles: ROLES[]) => {
         try {
             const token = req.headers?.authorization;
         if (!token) {
-            sendResponse(res, {
+            return sendResponse(res, {
                 statusCode: 401,
                 success: false,
                 message:"Unauthorize access!!"
@@ -24,8 +24,8 @@ export const authMiddleware = (...roles: ROLES[]) => {
             `, [decoded?.id]);
         const user = userData.rows[0]
 
-        if (roles.length === 0 && !roles.includes(user?.role)) {
-            sendResponse(res, {
+        if (roles.length === 0 || !roles.includes(user?.role)) {
+            return sendResponse(res, {
                 statusCode: 403,
                 success: false,
                 message:"Forbidden access!!"

@@ -120,8 +120,23 @@ const getSingleIssueFromDB = async (id: (string)) => {
     return issueData
 };
 
+
+const deleteIssueFromDB = async (id: string) => {
+    
+
+    const result = await pool.query(`
+        DELETE FROM issues
+        WHERE id = $1
+        `, [id]);
+    if (result.rowCount === 0) {
+        throw new Error('Failed to delete . Please try again')
+    }
+    return result
+};
+
 export const issueService = {
     createIssueIntoDB,
     getAllIssueFromDB,
-    getSingleIssueFromDB
+    getSingleIssueFromDB,
+    deleteIssueFromDB
 }
