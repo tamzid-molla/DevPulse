@@ -2,6 +2,7 @@ import express, { type Application, type Request, type Response } from "express"
 import pool from "./config/bd.js";
 import { authRouter } from "./modules/auth/auth.route.js";
 import { issueRouter } from "./modules/issue/issue.route.js";
+import { globalErrorHandler } from "./middleware/globalErrorHandler.js";
 export const app: Application = express();
 
 app.use(express.json());
@@ -50,3 +51,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/auth",authRouter);
 app.use("/api/issue",issueRouter);
 
+
+
+//Declare global error handler 
+app.use(globalErrorHandler);
