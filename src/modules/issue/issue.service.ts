@@ -17,6 +17,75 @@ const createIssueIntoDB = async (data: IIssue, user: any) => {
     
 };
 
+
+const getAllIssueFromDB = async (query:any) => {
+    const { type, status, sort = 'newest' } = query;
+    console.log(type, status)
+    
+    //Create base query and array for dynamic params
+    let queryText = 'SELECT * FROM issues';
+    const queryParams: (string | undefined)[] = [];
+    const whereCondition:(string | undefined)[] = [];
+
+
+    //Check: params exists or not
+    if (type) {
+        queryParams.push(type);
+        whereCondition.push(`type = $${queryParams.length}`);
+    };
+
+    if (status) {
+        queryParams.push(status);
+        whereCondition.push(`status = $${queryParams.length}`);
+    }
+
+    if (whereCondition.length > 0) {
+        queryText += ' WHERE ' + whereCondition.join(' AND ');
+    }
+
+    //sorting : Default newest
+    if (sort === 'oldest') {
+        queryText += ' ORDER BY created_at ASC'
+    } else {
+        queryText += ' ORDER BY created_at DESC';
+    }
+
+    console.log(queryText)
+    
+    const result = await pool.query(queryText, queryParams);
+    const issues = result.rows;
+
+    //Unique reporter id
+    const reporterIds = [...new Set(issues.map(issue => issue.reporter_id))];
+
+    // fetch reporter data from database
+    const reporterData = await pool.query(`
+        SELECT id,name,role FROM users
+        WHERE id = ANY($1)
+        `, [reporterIds]);
+    const reporters = reporterData.rows;
+
+    //convert to object
+    const reporterMap:any = {};
+    reporters.forEach(reporter => {
+        reporterMap[reporter.id] = {
+            id: reporter?.id,
+            name: reporter?.name,
+            role: reporter?.role
+        }
+    });
+
+    //Formatting data 
+    const formattedData = issues.map(issue => {
+        const { reporter_id, ...issueData } = issue;
+        issueData["reporter"] = reporterMap[reporter_id] || null;
+        return issueData
+    })
+    
+    return formattedData
+}
+
 export const issueService = {
     createIssueIntoDB,
+    getAllIssueFromDB,
 }
