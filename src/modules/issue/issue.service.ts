@@ -85,7 +85,43 @@ const getAllIssueFromDB = async (query:any) => {
     return formattedData
 }
 
+
+const getSingleIssueFromDB = async (id: (string)) => {
+    console.log(id);
+    const result = await pool.query(`
+        SELECT * FROM issues
+        WHERE id = $1
+        `, [id]);
+    if (result.rows.length === 0) {
+        throw new Error('This issue cannot exist')
+    };
+    const issue = result.rows[0];
+
+    //fetch reporter data
+    const reporterData = await pool.query(`
+        SELECT id,name,role FROM users
+        WHERE id = $1
+        `, [issue?.reporter_id]);
+    const reporter = reporterData.rows[0];
+
+    //formate data 
+    const { reporter_id, ...issueData } = issue;
+    issueData
+    if (reporterData.rows.length === 0) {
+        issueData['reporter'] = {
+            message:'This reporter is not exist in the server'
+        }
+    }
+    issueData['reporter'] = {
+        id: reporter?.id,
+        name: reporter?.name,
+        role: reporter?.role
+    };
+    return issueData
+};
+
 export const issueService = {
     createIssueIntoDB,
     getAllIssueFromDB,
+    getSingleIssueFromDB
 }
