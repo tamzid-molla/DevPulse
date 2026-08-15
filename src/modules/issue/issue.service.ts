@@ -1,5 +1,6 @@
 import pool from "../../config/bd.js";
-import type { IIssue } from "./issue.interface.js";
+import { USER_ROLE } from "../../types/index.js";
+import type { IIssue, IUpdateData } from "./issue.interface.js";
 
 
 const createIssueIntoDB = async (data: IIssue, user: any) => {
@@ -120,6 +121,44 @@ const getSingleIssueFromDB = async (id: (string)) => {
     return issueData
 };
 
+const updateIssueIntoDB = async (id: string, loginUser: any, newData: IUpdateData) => {
+    
+    const { title, description, type, status } = newData;
+
+    const issueData = await pool.query(`
+        SELECT * FROM issues
+        WHERE id = $1
+        `, [id]);
+    const issue = issueData.rows[0];
+
+    if (!issue) {
+    throw new Error("Issue not found!");
+  }
+
+    //Role base work 
+    if (loginUser?.role === USER_ROLE.contributor) {
+        if (loginUser?.id !== issue.reporter_id || issue.status !== "open") {
+             throw new Error('You cannot update this issue');
+        }
+    };
+
+const result = await pool.query(`
+            UPDATE issues
+            SET
+            title = COALESCE($1,title),
+            description = COALESCE($2, description),
+            type = COALESCE($3, type),
+            status = COALESCE($4, status),
+            updated_at = NOW()
+            WHERE id = $5
+            RETURNING *
+            `, [title, description, type, status, id]);
+    if (result.rowCount === 0) {
+        throw new Error("Something went wrong . Try again")
+    }
+        return result.rows[0]
+};
+
 
 const deleteIssueFromDB = async (id: string) => {
     
@@ -138,5 +177,6 @@ export const issueService = {
     createIssueIntoDB,
     getAllIssueFromDB,
     getSingleIssueFromDB,
-    deleteIssueFromDB
+    deleteIssueFromDB,
+    updateIssueIntoDB
 }

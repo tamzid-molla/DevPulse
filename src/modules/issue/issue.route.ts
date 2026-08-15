@@ -9,7 +9,8 @@ const router = Router();
 router.post("/", authMiddleware(USER_ROLE.contributor, USER_ROLE.maintainer), issueController.createIssue);
 router.get("/", issueController.getAllIssue);
 router.get("/:id", issueController.getSingleIssue);
-router.delete("/:id",authMiddleware(USER_ROLE.maintainer), issueController.deleteIssue);
+router.delete("/:id", authMiddleware(USER_ROLE.maintainer), issueController.deleteIssue);
+router.put("/:id",authMiddleware(USER_ROLE.contributor,USER_ROLE.maintainer), issueController.updateIssue);
 
 
 export const issueRouter = router;
