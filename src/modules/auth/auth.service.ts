@@ -31,7 +31,7 @@ const createUserIntoDB = async (data: IUser) => {
 
 
 
-const loginUserIntoDB = async (data:{email:string,password:string}) => {
+const loginUserIntoDB = async (data: { email: string, password: string }) => {
     const { email, password } = data;
 
     //Check the user exists or not

@@ -1,9 +1,9 @@
 import pool from "../../config/bd.js";
 import { USER_ROLE } from "../../types/index.js";
-import type { IIssue, IUpdateData } from "./issue.interface.js";
+import type { IIssue, IQuery, IUpdateData, UserPayload } from "./issue.interface.js";
 
 
-const createIssueIntoDB = async (data: IIssue, user: any) => {
+const createIssueIntoDB = async (data: IIssue, user: UserPayload) => {
     const {title,description,type} = data;
     const allowedType = ["bug", "feature_request"];
     if (!allowedType.includes(type)) {
@@ -19,9 +19,8 @@ const createIssueIntoDB = async (data: IIssue, user: any) => {
 };
 
 
-const getAllIssueFromDB = async (query:any) => {
+const getAllIssueFromDB = async (query:IQuery) => {
     const { type, status, sort = 'newest' } = query;
-    console.log(type, status)
     
     //Create base query and array for dynamic params
     let queryText = 'SELECT * FROM issues';
@@ -50,8 +49,6 @@ const getAllIssueFromDB = async (query:any) => {
     } else {
         queryText += ' ORDER BY created_at DESC';
     }
-
-    console.log(queryText)
     
     const result = await pool.query(queryText, queryParams);
     const issues = result.rows;
@@ -87,8 +84,7 @@ const getAllIssueFromDB = async (query:any) => {
 }
 
 
-const getSingleIssueFromDB = async (id: (string)) => {
-    console.log(id);
+const getSingleIssueFromDB = async (id:string) => {
     const result = await pool.query(`
         SELECT * FROM issues
         WHERE id = $1
@@ -121,7 +117,7 @@ const getSingleIssueFromDB = async (id: (string)) => {
     return issueData
 };
 
-const updateIssueIntoDB = async (id: string, loginUser: any, newData: IUpdateData) => {
+const updateIssueIntoDB = async (id: string, loginUser: UserPayload, newData: IUpdateData) => {
     
     const { title, description, type, status } = newData;
 

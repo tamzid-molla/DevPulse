@@ -1,12 +1,14 @@
 import type { Request, Response } from "express";
 import { issueService } from "./issue.service.js";
 import sendResponse from "../../utility/sendResponse.js";
+import type { IQuery, UserPayload } from "./issue.interface.js";
+
 
 
 const createIssue = async (req: Request, res: Response) => {
-    const loginUser = req.user
+    
     try {
-        const result = await issueService.createIssueIntoDB(req.body,loginUser);
+        const result = await issueService.createIssueIntoDB(req.body, req.user as UserPayload);
         sendResponse(res, {
             statusCode: 201,
             success: true,
@@ -24,7 +26,7 @@ const createIssue = async (req: Request, res: Response) => {
 };
 
 
-const getAllIssue = async (req: Request, res: Response) => {
+const getAllIssue = async (req: Request<{}, {}, {}, IQuery>, res: Response) => {
     try {
         const result = await issueService.getAllIssueFromDB(req.query);
 
@@ -68,9 +70,8 @@ const getSingleIssue = async (req: Request<{ id: string }>, res: Response) => {
 
 const updateIssue = async (req: Request<{ id: string }>, res: Response) => {
     const { id } = req.params;
-    const loginUser = req.user;
     try {
-        const result = await issueService.updateIssueIntoDB(id,loginUser,req.body);
+        const result = await issueService.updateIssueIntoDB(id, req.user as UserPayload, req.body);
 
         sendResponse(res, {
             statusCode: 200,
