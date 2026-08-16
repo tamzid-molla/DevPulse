@@ -3,11 +3,19 @@ import pool from "./config/bd.js";
 import { authRouter } from "./modules/auth/auth.route.js";
 import { issueRouter } from "./modules/issue/issue.route.js";
 import { globalErrorHandler } from "./middleware/globalErrorHandler.js";
+import cors from "cors"
+
 export const app: Application = express();
 
+
+app.use(
+  cors({
+    origin: ["https://devpluse.vercel.app"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
-
-
 //database connection 
 const connectDB = async () => {
     await pool.query(`
